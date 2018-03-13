@@ -57,7 +57,7 @@
           (define text-field (new text-field%
                                   (label "Text")
                                   (parent panel)
-                                  (init-value "Field")))
+                                  (init-value "")))
 
           (new button% [parent panel]
                [label "Load"]
@@ -72,8 +72,13 @@
           ; Show the frame by calling its show method
           (send frame show #t))
 
+        (define (path->string* ps)
+          (if (string? ps)
+              ps
+              (path->string ps)))
+
         (define (move-and-open src)
-          (define f-name    (last (string-split src "/")))
+          (define f-name    (last (string-split (path->string* src) "/")))
           (define dest-file (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" f-name ))
 
           (copy-file src
