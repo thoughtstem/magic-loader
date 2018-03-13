@@ -65,7 +65,7 @@
                            (send msg set-label "Loading..")
                            (let ([f (locate-file (send text-field get-value))])
                              (if f
-                                 (move-and-open f)
+                                 (maybe-move-and-open f)
                                  (void)))
                            )])
  
@@ -77,6 +77,11 @@
               ps
               (path->string ps)))
 
+        (define (maybe-move-and-open src)
+          (if (regexp-match #rx"SAVE_MY_WORK" src )
+              (open-in-new-tab src)
+              (move-and-open src)))
+
         (define (move-and-open src)
           (define f-name    (last (string-split (path->string* src) "/")))
           (define dest-file (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" f-name ))
@@ -85,8 +90,7 @@
                      dest-file
                      #t)
 
-          (open-in-new-tab dest-file)
-        )
+          (open-in-new-tab dest-file))
 
         (define (locate-file name)
           ;TODO: Search in online locations... 
