@@ -103,7 +103,7 @@
                 [else #f])
               ))
 
-        (define (search-pkgs name) 
+        (define (search-pkgs name)
           (define pkgs_dir  
                    (path->string (find-user-pkgs-dir)))
 
