@@ -43,7 +43,7 @@
                   
         (define (load-file)
           ; Make a frame by instantiating the frame% class
-          (define frame (new frame% [label "Example"]))
+          (define frame (new frame% [label "TS Magic Loader"]))
  
           ; Make a static text message in the frame
           (define msg (new message% [parent frame]
@@ -78,9 +78,15 @@
               (path->string ps)))
 
         (define (maybe-move-and-open src)
+          (maybe-create-smw)
           (if (regexp-match #rx"SAVE_MY_WORK" src )
               (open-in-new-tab src)
               (move-and-open src)))
+
+        (define (maybe-create-smw)
+          (define smw (string-append (path->string (find-system-path 'home-dir)) "Desktop/SAVE_MY_WORK/"))
+          (or (directory-exists? smw)
+              (make-directory smw)))
 
         (define (move-and-open src)
           (define f-name    (last (string-split (path->string* src) "/")))
