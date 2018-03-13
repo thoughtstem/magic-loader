@@ -74,7 +74,8 @@
 
         (define (move-and-open src)
           (define f-name    (last (string-split src "/")))
-          (define dest-file (string-append "/home/thoughtstem/Desktop/SAVE_MY_WORK/" f-name))
+          (define dest-file (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" f-name ))
+
           (copy-file src
                      dest-file
                      #t)
@@ -83,24 +84,24 @@
         )
 
         (define (locate-file name)
-          ;TODO: Search through installed packages for demos... 
           ;TODO: Search in online locations... 
           ;      Backend?  
           ;TODO: Search local network?? Get stuff from teachers???
 
           (define home    (string-append (path->string (find-system-path 'home-dir)) name ".rkt" ))
           (define desktop (string-append (path->string (find-system-path 'home-dir)) "/Desktop/" name ".rkt" ))
-          (define smw     (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK" name ".rkt" ))
+          (define smw     (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" name ".rkt" ))
 
       
           ;Note: order these so that it will return the local file with higher priority
     
-          (or (search-pkgs name)
+          (or 
               (cond 
                 [(file-exists? smw)     smw]
                 [(file-exists? home)    home]
                 [(file-exists? desktop) desktop]
                 [else #f])
+              (search-pkgs name)
               ))
 
         (define (search-pkgs name) 
