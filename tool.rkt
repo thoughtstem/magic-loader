@@ -125,8 +125,10 @@
 
           (define files
             (find-files	 
-                  (λ(x) (string-contains? (path->string x)
-                                          (string-append "/" name ".rkt")))	 
+                  (λ(x) (and
+                          (not (string-contains? (path->string x) ".trash"))
+                          (string-contains? (path->string x)
+                                            (string-append "/" name ".rkt"))))
                   pkgs_dir))
 
           (if (empty? files)
