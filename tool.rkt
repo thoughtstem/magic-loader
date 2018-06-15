@@ -13,8 +13,13 @@
          aws/keys)
 
 (provide tool@)
-  
-  
+
+(define slash
+  (if (eq? (system-type 'os) 'windows)
+      "\\"
+      "/"))
+
+ 
 (define tool@
   (unit
     (import drracket:tool^)
@@ -117,13 +122,13 @@
               (move-and-open src)))
 
         (define (maybe-create-smw)
-          (define smw (string-append (path->string (find-system-path 'home-dir)) "Desktop/SAVE_MY_WORK/"))
+          (define smw (string-append (path->string (find-system-path 'home-dir)) "Desktop" slash "SAVE_MY_WORK" slash))
           (or (directory-exists? smw)
               (make-directory smw)))
 
         (define (move-and-open src)
-          (define f-name    (last (string-split (path->string* src) "/")))
-          (define dest-file (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" f-name ))
+          (define f-name    (last (string-split (path->string* src) slash)))
+          (define dest-file (string-append (path->string (find-system-path 'home-dir)) slash "Desktop" slash "SAVE_MY_WORK" slash f-name ))
 
           (copy-file src
                      dest-file
@@ -137,8 +142,8 @@
           ;TODO: Search local network?? Get stuff from teachers???
 
           (define home    (string-append (path->string (find-system-path 'home-dir)) name ".rkt" ))
-          (define desktop (string-append (path->string (find-system-path 'home-dir)) "/Desktop/" name ".rkt" ))
-          (define smw     (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" name ".rkt" ))
+          (define desktop (string-append (path->string (find-system-path 'home-dir)) slash "Desktop" slash name ".rkt" ))
+          (define smw     (string-append (path->string (find-system-path 'home-dir)) slash "Desktop" slash "SAVE_MY_WORK" slash name ".rkt" ))
 
       
           ;Note: order these so that it will return the local file with higher priority
@@ -161,7 +166,7 @@
                   (λ(x) (and
                           (not (string-contains? (path->string x) ".trash"))
                           (string-contains? (path->string x)
-                                            (string-append "/" name ".rkt"))))
+                                            (string-append slash name ".rkt"))))
                   pkgs_dir))
 
           (if (empty? files)
