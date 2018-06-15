@@ -84,8 +84,8 @@
           (define hidden (new frame%
                               [label "Hidden"]))
           
-          (define cp (comm-panel hidden))
-
+          (define cp (comm-panel frame))
+          (send cp reparent hidden)
           
           
           (new button% [parent frame]
