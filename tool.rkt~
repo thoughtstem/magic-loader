@@ -29,10 +29,9 @@
  
         (let ((btn
                (new switchable-button%
-                    (label "TS Magic Loader")
+                    (label "TS Magic Loader!")
                     (callback (λ (button)
-                                (load-file )
-                                ))
+                                (load-file )))
                     (parent (get-button-panel))
                     (bitmap reverse-content-bitmap))))
           (register-toolbar-button btn #:number 11)
@@ -43,7 +42,7 @@
                   
         (define (load-file)
           ; Make a frame by instantiating the frame% class
-          (define frame (new frame% [label "Example"]))
+          (define frame (new frame% [label "TS Magic Loader"]))
  
           ; Make a static text message in the frame
           (define msg (new message% [parent frame]
@@ -57,7 +56,7 @@
           (define text-field (new text-field%
                                   (label "Text")
                                   (parent panel)
-                                  (init-value "Field")))
+                                  (init-value "")))
 
           (new button% [parent panel]
                [label "Load"]
@@ -65,52 +64,70 @@
                            (send msg set-label "Loading..")
                            (let ([f (locate-file (send text-field get-value))])
                              (if f
-                                 (move-and-open f)
+                                 (maybe-move-and-open f)
                                  (void)))
                            )])
  
           ; Show the frame by calling its show method
           (send frame show #t))
 
+        (define (path->string* ps)
+          (if (string? ps)
+              ps
+              (path->string ps)))
+
+        (define (maybe-move-and-open src)
+          (maybe-create-smw)
+          (if (regexp-match #rx"SAVE_MY_WORK" src )
+              (open-in-new-tab src)
+              (move-and-open src)))
+
+        (define (maybe-create-smw)
+          (define smw (string-append (path->string (find-system-path 'home-dir)) "Desktop/SAVE_MY_WORK/"))
+          (or (directory-exists? smw)
+              (make-directory smw)))
+
         (define (move-and-open src)
-          (define f-name    (last (string-split src "/")))
-          (define dest-file (string-append "/home/thoughtstem/Desktop/SAVE_MY_WORK/" f-name))
+          (define f-name    (last (string-split (path->string* src) "/")))
+          (define dest-file (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" f-name ))
+
           (copy-file src
                      dest-file
                      #t)
 
-          (open-in-new-tab dest-file)
-        )
+          (open-in-new-tab dest-file))
 
         (define (locate-file name)
-          ;TODO: Search through installed packages for demos... 
           ;TODO: Search in online locations... 
           ;      Backend?  
           ;TODO: Search local network?? Get stuff from teachers???
 
           (define home    (string-append (path->string (find-system-path 'home-dir)) name ".rkt" ))
           (define desktop (string-append (path->string (find-system-path 'home-dir)) "/Desktop/" name ".rkt" ))
-          (define smw     (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK" name ".rkt" ))
+          (define smw     (string-append (path->string (find-system-path 'home-dir)) "/Desktop/SAVE_MY_WORK/" name ".rkt" ))
 
       
           ;Note: order these so that it will return the local file with higher priority
     
-          (or (search-pkgs name)
+          (or 
               (cond 
                 [(file-exists? smw)     smw]
                 [(file-exists? home)    home]
                 [(file-exists? desktop) desktop]
                 [else #f])
+              (search-pkgs name)
               ))
 
-        (define (search-pkgs name)
+        (define (search-pkgs name) 
           (define pkgs_dir  
                    (path->string (find-user-pkgs-dir)))
 
           (define files
             (find-files	 
-                  (λ(x) (string-contains? (path->string x)
-                                          (string-append "/" name ".rkt")))	 
+                  (λ(x) (and
+                          (not (string-contains? (path->string x) ".trash"))
+                          (string-contains? (path->string x)
+                                            (string-append "/" name ".rkt"))))
                   pkgs_dir))
 
           (if (empty? files)

@@ -8,11 +8,13 @@
          setup/dirs
          racket/file
          racket/string
-         racket/list)
+         racket/list
+         comm-panel
+         aws/keys)
 
 (provide tool@)
- 
- 
+  
+  
 (define tool@
   (unit
     (import drracket:tool^)
@@ -29,10 +31,9 @@
  
         (let ((btn
                (new switchable-button%
-                    (label "TS Magic Loader")
+                    (label "TS Magic Loader!")
                     (callback (λ (button)
-                                (load-file )
-                                ))
+                                (load-file )))
                     (parent (get-button-panel))
                     (bitmap reverse-content-bitmap))))
           (register-toolbar-button btn #:number 11)
@@ -55,7 +56,7 @@
 
 
           (define text-field (new text-field%
-                                  (label "Text")
+                                  (label "Name:")
                                   (parent panel)
                                   (init-value "")))
 
@@ -68,6 +69,38 @@
                                  (maybe-move-and-open f)
                                  (void)))
                            )])
+
+
+          
+          ; Make a static text message in the frame
+          (define msg2 (new message% [parent frame]
+                            [label "Or..."]))
+
+          (define hidden (new frame%
+                              [label "Hidden"]))
+          
+          (define cp (comm-panel hidden))
+
+          
+          
+          (new button% [parent frame]
+               [label "Toggle Secret Messages"]
+               [callback (lambda (button event)
+                           (if (eq? (send cp get-parent) frame)
+                               (begin
+                                 (send cp reparent hidden)
+                                 (send frame min-height 0)
+                                 (send frame container-flow-modified))
+                               (begin
+                                 (send cp reparent frame)
+                                 (send frame min-height 500)
+                                 (send frame container-flow-modified)))
+                           )])
+
+
+          
+
+          (send frame stretchable-height #f)
  
           ; Show the frame by calling its show method
           (send frame show #t))
